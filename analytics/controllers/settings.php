@@ -21,7 +21,9 @@ class settings extends Admin_Controller {
     $ga_password = $settings['ga.password'];
     $ga_enabled  = (int) $settings['ga.enabled'];
     $ga_profile  = $settings['ga.profile'];
+    $ga_code     = $settings['ga.code'];
 
+    Template::set('ga_code',$ga_code);
     Template::set('ga_username',$ga_username);
     Template::set('ga_password',$ga_password);
     Template::set('ga_enabled',$ga_enabled);
@@ -88,6 +90,7 @@ class settings extends Admin_Controller {
     if ( $this->input->post('ga_enabled') != 0 )
     {
       $this->form_validation->set_rules('ga_profile','Profile id','required|trim|xss_clean|max_length[100]');
+      $this->form_validation->set_rules('ga_code','Code','required|trim|xss_clean|max_length[15]');
     }
 
     if ($this->form_validation->run() === false)
@@ -100,6 +103,7 @@ class settings extends Admin_Controller {
                   array('name' => 'ga.password', 'value' => $this->input->post('ga_password') ),
                   array('name' => 'ga.enabled', 'value' => $this->input->post('ga_enabled') ),
                   array('name' => 'ga.profile', 'value' => $this->input->post('ga_profile') ),
+                  array('name' => 'ga.code',  'value' => $this->input->post('ga_code') ),
                  );
 
     //destroy the saved update message in case they changed update preferences.

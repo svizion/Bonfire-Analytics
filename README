@@ -18,3 +18,14 @@ Head over to settings->analytics and set your GA
 username and password.
 
 The profile field is not used yet.
+
+
+USING MODULE TO DISPLAY FOOTER CODE
+===========================================
+
+To Display the Javascript code in the footer just add the following line of code in your Template file near the bottom.
+
+
+    <?php  echo Modules::run('analytics/analytics/show_gcode'); ?>
+
+

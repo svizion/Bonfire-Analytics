@@ -15,6 +15,11 @@
         <label for="ga_password">Google analytics password</label>
         <input type="text" name="ga_password" id="ga_password" value="<?php echo set_value('ga_password', isset($ga_password) ? $ga_password : ''); ?>" />
     </div>
+    <div>
+        <label for="ga_code">Google analytics code</label>
+        <input type="text" name="ga_code" id="ga_code" value="<?php echo set_value('ga_code', isset($ga_code) ? $ga_code : ''); ?>" />
+    </div>
+
   </fieldset>
 
   <fieldset>
