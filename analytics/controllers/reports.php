@@ -23,8 +23,8 @@ class reports extends Admin_Controller {
     {
       $this->ga_username = $settings['ga.username'];
       $this->ga_password = $settings['ga.password'];
-      $this->ga_enabled  = $settings['ga.profile'];
-      $this->ga_profile  = $settings['ga.enabled'];
+      $this->ga_profile  = $settings['ga.profile'];      
+      $this->ga_enabled  = $settings['ga.enabled'];
     } else {
       $this->ga_username = '';
       $this->ga_password = '';
