@@ -89,7 +89,7 @@ class settings extends Admin_Controller {
 
     if ( $this->input->post('ga_enabled') != 0 )
     {
-      $this->form_validation->set_rules('ga_profile','Profile id','required|trim|xss_clean|max_length[100]');
+      $this->form_validation->set_rules('ga_profile','Profile id','trim|xss_clean|max_length[100]');
       $this->form_validation->set_rules('ga_code','Code','required|trim|xss_clean|max_length[15]');
     }
 
