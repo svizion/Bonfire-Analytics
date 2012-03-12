@@ -9,7 +9,9 @@ class settings extends Admin_Controller {
     parent::__construct();
 
     $this->auth->restrict('Analytics.Settings.View');
-    $this->load->model('settings_model', null, true);
+				$this->load->model('activities/Activity_model', 'activity_model');
+
+				$this->load->model('settings/settings_model', 'settings_model');
 
     $this->load->library('form_validation');
     $this->lang->load('analytics');
@@ -17,17 +19,15 @@ class settings extends Admin_Controller {
 
     $settings = $this->settings_model->find_all_by('module', 'analytics');
 
-    $ga_username = $settings['ga.username'];
-    $ga_password = $settings['ga.password'];
-    $ga_enabled  = (int) $settings['ga.enabled'];
-    $ga_profile  = $settings['ga.profile'];
-    $ga_code     = $settings['ga.code'];
+				$settings = array (
+																							'ga_username' => $settings['ga.username'],
+																							'ga_password' => $settings['ga.password'],
+																							'ga_enabled'  => (int) $settings['ga.enabled'],
+																							'ga_profile'  => $settings['ga.profile'],
+																							'ga_code'     => $settings['ga.code']
+																						);
 
-    Template::set('ga_code',$ga_code);
-    Template::set('ga_username',$ga_username);
-    Template::set('ga_password',$ga_password);
-    Template::set('ga_enabled',$ga_enabled);
-    Template::set('ga_profile',$ga_profile);
+    Template::set('settings',$settings);
   }
 
   //--------------------------------------------------------------------
@@ -39,6 +39,17 @@ class settings extends Admin_Controller {
   */
   public function index()
   {
+    if ($this->input->post('submit'))
+    {
+      if ($this->save_settings())
+      {
+        Template::set_message(lang('settings_edit_success'), 'success');
+        Template::redirect('admin/settings/analytics');
+      } else {
+        Template::set_message('Error', 'error');
+      }
+    }
+
     Template::set('toolbar_title','Google Analytics');
     Template::render();
   }
@@ -52,12 +63,11 @@ class settings extends Admin_Controller {
   */
   public function edit()
   {
-
     if ($this->input->post('submit'))
     {
       if ($this->save_settings())
       {
-        Template::set_message(lang("settings_edit_success"), 'success');
+        Template::set_message(lang('settings_edit_success'), 'success');
         Template::redirect('admin/settings/analytics');
       } else {
         Template::set_message('Error', 'error');
@@ -84,7 +94,9 @@ class settings extends Admin_Controller {
   {
 
     $this->form_validation->set_rules('ga_username','Username','valid_email|required|trim|xss_clean|max_length[100]');
-    $this->form_validation->set_rules('ga_password','Password','required|trim|xss_clean|max_length[100]');
+				if ( $this->input->post('ga_new_password') )
+						$this->form_validation->set_rules('ga_new_password','Password','required|trim|xss_clean|max_length[100]');
+
     $this->form_validation->set_rules('ga_enabled','Enabled','required|trim|xss_clean|max_length[1]');
 
     if ( $this->input->post('ga_enabled') != 0 )
@@ -98,9 +110,12 @@ class settings extends Admin_Controller {
       return false;
     }
 
-    $data = array(
+
+				$password = ( $this->input->post('ga_new_password') != '' ) ? $this->input->post('ga_new_password') : $this->input->post('ga_password');
+
+				$data = array(
                   array('name' => 'ga.username', 'value' => $this->input->post('ga_username') ),
-                  array('name' => 'ga.password', 'value' => $this->input->post('ga_password') ),
+                  array('name' => 'ga.password', 'value' => $password ),
                   array('name' => 'ga.enabled', 'value' => $this->input->post('ga_enabled') ),
                   array('name' => 'ga.profile', 'value' => $this->input->post('ga_profile') ),
                   array('name' => 'ga.code',  'value' => $this->input->post('ga_code') ),
@@ -113,7 +128,7 @@ class settings extends Admin_Controller {
     }
 
     // Log the activity
-    $this->activity_model->log_activity($this->auth->user_id(), lang('bf_act_settings_saved').': ' . $this->input->ip_address(), 'analytics');
+				$this->activity_model->log_activity($this->current_user->id, lang('bf_act_settings_saved'). $this->input->ip_address(), 'analytics');
 
     // save the settings to the DB
     $updated = $this->settings_model->update_batch($data, 'name');
@@ -122,35 +137,5 @@ class settings extends Admin_Controller {
   }
 
   //--------------------------------------------------------------------
-
-  /*
-    Method: save_settings_old()
-
-    Original method of saving settings using config files un-used method,
-    Runs form validation on data and writes settings to config file.
-  */
-  private function save_settings_old()
-  {
-    $this->form_validation->set_rules('ga_username','Username','valid_email|required|trim|xss_clean|max_length[100]');
-    $this->form_validation->set_rules('ga_password','Password','required|trim|xss_clean|max_length[100]');
-    $this->form_validation->set_rules('ga_enabled','Enabled','required|trim|xss_clean|max_length[1]');
-		if ( $this->input->post('ga_enabled') != 0 )
-    {
-      $this->form_validation->set_rules('ga_profile','Profile id','required|trim|xss_clean|max_length[100]');
-    }
-
-    if ($this->form_validation->run() === false)
-		{
-			return false;
-		} else {
-      $this->load->helper('config_file');
-      $config['username']=$this->input->post('ga_username');
-      $config['password']=$this->input->post('ga_password');
-      $config['enabled']=$this->input->post('ga_enabled');
-      $config['profile']=$this->input->post('ga_profile');
-      write_config('analytics',$config);
-      return true;
-    }
-  }
 
 }
