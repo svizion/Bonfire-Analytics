@@ -29,3 +29,9 @@ To Display the Javascript code in the footer just add the following line of code
     <?php  echo Modules::run('analytics/analytics/show_gcode'); ?>
 
 
+Me Elsewhere
+
+[Twitter](https://twitter.com/#!/svizion)
+[My Blog](http://blog.shawnc.org)
+
+You can always buy me a beer at the local pub :beer:
