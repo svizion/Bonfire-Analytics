@@ -14,10 +14,12 @@ class settings extends Admin_Controller
 
 		$this->auth->restrict('Analytics.Settings.View');
 
-		$this->load->model('settings_model', null, true);
-		$this->load->library('form_validation');
 		$this->lang->load('analytics');
 
+		if ( ! class_exists('Settings_model'))
+		{
+			$this->load->model('settings_model', null, true);
+		}
 		$settings = $this->settings_model->find_all_by('module', 'analytics');
 
 		$ga_username = $settings['ga.username'];
@@ -143,12 +145,17 @@ class settings extends Admin_Controller
 		}
 		else
 		{
-			$this->load->helper('config_file');
 			$config['username']=$this->input->post('ga_username');
 			$config['password']=$this->input->post('ga_password');
 			$config['enabled']=$this->input->post('ga_enabled');
 			$config['profile']=$this->input->post('ga_profile');
+
+			if ( ! function_exists('write_config'))
+			{
+				$this->load->helper('config_file');
+			}
 			write_config('analytics',$config);
+
 			return true;
 		}
 	}

@@ -23,8 +23,11 @@ class reports extends Admin_Controller
 		$this->auth->restrict('Analytics.Reports.View');
 
 		$this->lang->load('analytics');
-		$this->load->model('settings_model', null, true);
 
+		if ( ! class_exists('Settings_model'))
+		{
+			$this->load->model('settings_model', null, true);
+		}
 		$settings = $this->settings_model->find_all_by('module', 'analytics');
 
 		if ( is_array( $settings ) && $settings['ga.enabled'] == 1 )

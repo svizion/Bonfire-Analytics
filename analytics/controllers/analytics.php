@@ -30,11 +30,13 @@ class analytics extends Front_Controller
 	 */
 	public function show_gcode()
 	{
-		$this->load->model('settings_model', null, true);
-
+		if ( ! class_exists('Settings_model'))
+		{
+			$this->load->model('settings_model', null, true);
+		}
 		$settings = $this->settings_model->find_all_by('module', 'analytics');
 
-		if ( $settings['ga.enabled'] == 1 )
+		if ( is_array($settings) && $settings['ga.enabled'] == 1 )
 		{
 			$data['gcode'] = $settings['ga.code'];
 			return $this->load->view('analytics/index', $data, true);
