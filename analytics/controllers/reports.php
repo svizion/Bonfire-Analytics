@@ -1,12 +1,44 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
-class reports extends Admin_Controller {
+class Reports extends Admin_Controller {
 
   //--------------------------------------------------------------------
-  private $ga_username;
-  private $ga_password;
-  private $ga_enabled;
-  private $ga_profile;
+
+  /**
+   * Place holder.
+   *
+   * @access private
+   *
+   * @var string
+   */
+  private $ga_username = '';
+
+  /**
+   * Place holder.
+   *
+   * @access private
+   *
+   * @var string
+   */
+  private $ga_password = '';
+
+  /**
+   * Place holder.
+   *
+   * @access private
+   *
+   * @var string
+   */
+  private $ga_enabled = 0;
+
+  /**
+   * Place holder.
+   *
+   * @access private
+   *
+   * @var string
+   */
+  private $ga_profile = '';
 
 
   //--------------------------------------------------------------------
@@ -18,24 +50,15 @@ class reports extends Admin_Controller {
     $this->auth->restrict('Analytics.Reports.View');
     $this->lang->load('analytics');
 
-    $this->load->model('settings/settings_model', 'settings_model');
+    Template::set('toolbar_title', "Google Analytics");
 
-    $settings = $this->settings_model->find_all_by('module', 'analytics');
-
-    if ( is_array( $settings ) && $settings['ga.enabled'] == 1 )
+    if (settings_item('ga.enabled') == 1)
     {
-      $this->ga_username = $settings['ga.username'];
-      $this->ga_password = $settings['ga.password'];
-      $this->ga_profile  = $settings['ga.profile'];
-      $this->ga_enabled  = $settings['ga.enabled'];
-    } else {
-      $this->ga_username = '';
-      $this->ga_password = '';
-      $this->ga_enabled  = 0;
-      $this->ga_profile  = '';
+      $this->ga_username = settings_item('ga.username');
+      $this->ga_password = settings_item('ga.password');
+      $this->ga_profile  = settings_item('ga.profile');
+      $this->ga_enabled  = settings_item('ga.enabled');
     }
-
-    //Assets::add_js($this->load->view('reports/js', null, true), 'inline');
 
   }
 
@@ -49,7 +72,7 @@ class reports extends Admin_Controller {
   public function index()
   {
 
-    if ( ( $this->ga_enabled == 1 ) && $this->ga_username && $this->ga_password )
+    if (($this->ga_enabled == 1) && $this->ga_username && $this->ga_password)
     {
 			Assets::clear_cache();
       Assets::add_module_js('analytics','swfobject.js');
@@ -57,14 +80,12 @@ class reports extends Admin_Controller {
 
 			Assets::add_js( $this->load->view('reports/reportsjs', null, true ), 'inline' );
 			Assets::add_js( $this->load->view('reports/extreport', null, true ), 'inline' );
-      Template::set('toolbar_title', "Google Analytics");
-      Template::render();
     } else {
-      Template::set('toolbar_title', "Google Analytics");
       Template::set_view('reports/not_defined');
-      Template::render();
+
     }
 
+    Template::render();
   }
 
   //--------------------------------------------------------------------
@@ -72,10 +93,10 @@ class reports extends Admin_Controller {
 	function analytics_profiles()
 	{
 
-		if ( ( $this->ga_enabled == 1 ) AND $this->ga_username AND $this->ga_password )
+		if (($this->ga_enabled == 1) AND $this->ga_username AND $this->ga_password)
     {
       $this->load->library('analytics');
-      $this->analytics->login($this->ga_username, $this->ga_password ); // change
+      $this->analytics->login($this->ga_username, $this->ga_password);
       $aProfiles = $this->analytics->getProfileList();
       $counter = 1;
       $str = '';

@@ -1,6 +1,6 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
-class analytics extends Front_Controller {
+class Analytics extends Front_Controller {
 
 	//--------------------------------------------------------------------
 
@@ -19,24 +19,26 @@ class analytics extends Front_Controller {
 	public function index()
 	{
 
- }
+	}
 
- /*
+	// ------------------------------------------------------------------------
+
+	/*
 		Method: show_gcode()
 
 		Outputs the google analytics script code for the footer of a website.
- */
- public function show_gcode()
- {
-  $this->load->model('settings_model', null, true);
-  $settings    = $this->settings_model->find_all_by('module', 'analytics');
+	*/
+	public function show_gcode()
+	{
+		if ( settings_item('ga.enabled') == 1 )
+		{
+			$data['gcode'] = settings_item('ga.code');
+			return $this->load->view('analytics/index', $data, true);
+		}
 
-  if ( $settings['ga.enabled'] == 1 )
-  {
-    $data['gcode'] = $settings['ga.code'];
-    return $this->load->view('analytics/index', $data, true);
-  }
-
- }
+	}
 
 }
+
+/* End of file analytics.php */
+/* Location: ./modules/analytics/controllers/analytics.php */

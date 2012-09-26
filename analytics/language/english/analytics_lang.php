@@ -25,3 +25,4 @@ $lang['not_defined'] = 'Google Analytics username and password not defined';
 $lang['analytics_act_create_record']			= 'Created record with ID';
 $lang['analytics_act_edit_record']			= 'Updated record with ID';
 $lang['analytics_act_delete_record']			= 'Deleted record with ID';
+$lang['settings_edit_success'] = 'Successfully saved settings.';
