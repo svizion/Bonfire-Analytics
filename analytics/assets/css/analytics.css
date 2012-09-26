@@ -1,11 +1,15 @@
-.dashboard_box{float: left;
-background-color: #ECECEC;
-border-radius: 4px;
-padding: 0 10px;
-margin: 0 10px 10px 0;
-border: 1px solid #ECECEC;
-width:14%}
-table tr{
-    background:none!important;
+.dashboard_box {
+	float: left;
+	background-color: #ececec;
+	border-radius: 4px;
+	padding: 0 10px;
+	margin: 0 10px 10px 0;
+	border: 1px solid #ececec;
+	width: 14%
 }
-table tr td{padding:0!important;}
+table tr {
+	background: none !important;
+}
+table tr td {
+	padding: 0 !important;
+}
