@@ -8,6 +8,9 @@ class reports extends Admin_Controller {
   private $ga_enabled;
   private $ga_profile;
 
+
+  //--------------------------------------------------------------------
+
   public function __construct()
   {
     parent::__construct();
@@ -15,7 +18,7 @@ class reports extends Admin_Controller {
     $this->auth->restrict('Analytics.Reports.View');
     $this->lang->load('analytics');
 
-    $this->load->model('settings_model', null, true);
+    $this->load->model('settings/settings_model', 'settings_model');
 
     $settings = $this->settings_model->find_all_by('module', 'analytics');
 
@@ -23,7 +26,7 @@ class reports extends Admin_Controller {
     {
       $this->ga_username = $settings['ga.username'];
       $this->ga_password = $settings['ga.password'];
-      $this->ga_profile  = $settings['ga.profile'];      
+      $this->ga_profile  = $settings['ga.profile'];
       $this->ga_enabled  = $settings['ga.enabled'];
     } else {
       $this->ga_username = '';
@@ -32,8 +35,7 @@ class reports extends Admin_Controller {
       $this->ga_profile  = '';
     }
 
-
-    Assets::add_js($this->load->view('reports/js', null, true), 'inline');
+    //Assets::add_js($this->load->view('reports/js', null, true), 'inline');
 
   }
 
@@ -47,10 +49,14 @@ class reports extends Admin_Controller {
   public function index()
   {
 
-    if ( ( $this->ga_enabled == 1 ) AND $this->ga_username AND $this->ga_password )
+    if ( ( $this->ga_enabled == 1 ) && $this->ga_username && $this->ga_password )
     {
+			Assets::clear_cache();
       Assets::add_module_js('analytics','swfobject.js');
       Assets::add_module_css('analytics','analytics.css');
+
+			Assets::add_js( $this->load->view('reports/reportsjs', null, true ), 'inline' );
+			Assets::add_js( $this->load->view('reports/extreport', null, true ), 'inline' );
       Template::set('toolbar_title', "Google Analytics");
       Template::render();
     } else {
@@ -61,39 +67,51 @@ class reports extends Admin_Controller {
 
   }
 
+  //--------------------------------------------------------------------
 
-  function analytics_profiles()
-  {
+	function analytics_profiles()
+	{
 
-    if ( ( $this->ga_enabled == 1 ) AND $this->ga_username AND $this->ga_password )
+		if ( ( $this->ga_enabled == 1 ) AND $this->ga_username AND $this->ga_password )
     {
       $this->load->library('analytics');
       $this->analytics->login($this->ga_username, $this->ga_password ); // change
       $aProfiles = $this->analytics->getProfileList();
       $counter = 1;
       $str = '';
-    		foreach($aProfiles as $value => $key)
-    		{
+
+			foreach($aProfiles as $value => $key)
+			{
         $selected = 0;
         $comma = $counter == count($aProfiles) ? '' : '|';
         $str .= $value.','.$key.','.$selected.$comma;
         $counter++;
-    		}
+			}
 
-      $data['profiles']=$str.'';
-    		$this->load->view('reports/profiles',$data);
+      $data['profiles'] = $str.'';
+			$this->load->view('reports/profiles',$data);
     }
+
   }
+
+
+  //--------------------------------------------------------------------
 
   function statistics()
   {
     $this->cache('table-','table_data','no_table_data');
   }
 
+
+  //--------------------------------------------------------------------
+
   function xml_data()
   {
     $this->cache('xml-','xml_data','empty_data');
   }
+
+
+  //--------------------------------------------------------------------
 
   private function cache($filename, $view, $noresults = 'empty_data')
   {
@@ -112,6 +130,7 @@ class reports extends Admin_Controller {
     // als de huidige maand gelijk is aan de ingegeven maand
     if($use_cache)
     {
+
       if($month == date('n') && $year == date('Y'))
       {
         // als de created date gelijk is aan vandaag
@@ -127,7 +146,7 @@ class reports extends Admin_Controller {
 
         $days = cal_days_in_month(CAL_GREGORIAN,$month, $year);
 
-    				// controle of de file wel de laatste dag bevat als we niet in deze maand zitten
+    		// controle of de file wel de laatste dag bevat als we niet in deze maand zitten
         foreach (range(1, $days) as $number)
         {
 
@@ -170,9 +189,10 @@ class reports extends Admin_Controller {
 
     // cleanup
     $max = cal_days_in_month(CAL_GREGORIAN,date('n'), date('Y'));
-    foreach (range(1, $max) as $number) {
+    foreach (range(1, $max) as $number)
+		{
       @unlink( APPPATH . 'cache/'.$cprofile.'-'.$filename.$year.'-'.$month.'___'.date('Y-n-').$number.EXT);
-  		}
+		}
 
     // write
     $handle = fopen($filepath,"x+");

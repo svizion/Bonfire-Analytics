@@ -1,54 +1,67 @@
 <?php if (validation_errors()) : ?>
-<div class="notification error">
-	<p><?php echo validation_errors(); ?></p>
+<div class="alert alert-block alert-error fade in">
+  <a class="close" data-dismiss="alert">&times;</a>
+	<?php echo validation_errors(); ?>
 </div>
 <?php endif; ?>
 
-<?php echo form_open('admin/settings/analytics/edit')?>
-  <fieldset style="margin-top: 15px;">
-    <legend>Google analytics API <em style="color: #aaa;font-weight:normal;">must be defined to use on site reports</em></legend>
-    <div>
-        <label for="ga_username">Google analytics username</label>
-        <input type="text" name="ga_username" id="ga_username" value="<?php echo set_value('ga_username', isset($ga_username) ? $ga_username : ''); ?>" />
-    </div>
-    <div>
-        <label for="ga_password">Google analytics password</label>
-        <input type="text" name="ga_password" id="ga_password" value="<?php echo set_value('ga_password', isset($ga_password) ? $ga_password : ''); ?>" />
-    </div>
-    <div>
-        <label for="ga_code">Google analytics code</label>
-        <input type="text" name="ga_code" id="ga_code" value="<?php echo set_value('ga_code', isset($ga_code) ? $ga_code : ''); ?>" />
-    </div>
+<div class="admin-box">
+	<h3>Google Analytics Settings</h3>
 
-  </fieldset>
-
+<?php echo form_open($this->uri->uri_string(), 'class="ajax-form form-horizontal"'); ?>
   <fieldset>
-    <legend>Google analytics </legend>
+    <legend>Google analytics API <em style="color: #aaa;font-weight:normal;">must be defined to use on site reports</em></legend>
 
-    <div>
-      <label for="ga_enabled">Enabled</label>
-      <?php
+		<div class="control-group <?php echo form_has_error('ga_username') ? 'error' : ''; ?>">
+			<label class="control-label" for="ga_username">Analytics username<span class="required">*</span></label>
+			<div class='controls'>
+				<input id="ga_username" type="text" name="ga_username" maxlength="100" value="<?php echo set_value('ga_username', isset($settings['ga_username']) ? $settings['ga_username'] : ''); ?>">
+				<span class="help-inline"><?php echo form_error('ga_username'); ?></span>
+			</div>
+		</div>
 
-        echo form_dropdown(
-                           'ga_enabled',
-                           array('0'=>'No','1'=>'Yes'),
-                           set_value('ga_enabled', ( ( !empty($ga_enabled) ) ? $ga_enabled : 0 ) ),
-                           'id="ga_enabled"'
-                          );
-/*
-echo form_dropdown('ga_enabled',array('0'=>'No','1'=>'Yes'),$ga_enabled,'id="ga_enabled"');
-<input type="checkbox" name="ga_enabled" id="ga_enabled" value="1" <?php echo ( $ga_enabled == 1 ) ? 'checked="checked"' : set_checkbox('ga_enabled', 1); ?> />
-*/
-?>
-    </div>
+		<div class="control-group <?php echo form_has_error('ga_new_password') ? 'error' : ''; ?>">
+			<label class="control-label" for="ga_new_password">Analytics password<span class="required">*</span></label>
+			<div class='controls'>
+				<input id="ga_password" type="hidden" name="ga_password" value="<?php echo set_value('ga_password', isset($settings['ga_password']) ? $settings['ga_password'] : ''); ?>" />
+				<input id="ga_new_password" type="password" name="ga_new_password" maxlength="100" >
+				<span class="help-inline"><?php echo form_error('ga_new_password'); ?></span>
+			</div>
+		</div>
 
-    <div>
-      <label for="ga_profile">Profile id</label>
-      <input type="text" name="ga_profile" value="<?php echo set_value('ga_profile', isset($ga_profile) ? $ga_profile : ''); ?>" id="ga_profile"/>
-    </div>
-  </fieldset>
+				<div class="control-group <?php echo form_has_error('ga_code') ? 'error' : ''; ?>">
+			<label class="control-label" for="ga_code">Analytics code<span class="required">*</span></label>
+			<div class='controls'>
+				<input id="ga_code" type="text" name="ga_code" maxlength="100" value="<?php echo set_value('ga_code', isset($settings['ga_code']) ? $settings['ga_code'] : ''); ?>">
+				<span class="help-inline"><?php echo form_error('ga_code'); ?></span>
+			</div>
+		</div>
 
-  <div class="submits">
-    <input type="submit" name="submit" value="Save Settings" />
-  </div>
+		<div class="control-group <?php echo form_has_error('ga_enabled') ? 'error' : ''; ?>">
+			<label class="control-label" for="ga_enabled">Enabled<span class="required">*</span></label>
+			<div class='controls'>
+				<?php echo form_dropdown('ga_enabled', array('0'=>'No','1'=>'Yes'), set_value('ga_enabled', ( ( !empty($settings['ga_enabled']) ) ? $settings['ga_enabled'] : 0 ) ), 'id="ga_enabled" class="span2"'); ?>
+				<span class="help-inline"><?php echo form_error('ga_enabled'); ?></span>
+			</div>
+		</div>
+
+		<div class="control-group <?php echo form_has_error('ga_profile') ? 'error' : ''; ?>">
+			<label class="control-label" for="ga_profile">Profile ID<span class="required">*</span></label>
+			<div class='controls'>
+				<input id="ga_profile" type="text" name="ga_profile" maxlength="100" value="<?php echo set_value('ga_profile', isset($settings['ga_profile']) ? $settings['ga_profile'] : ''); ?>">
+				<span class="help-inline"><?php echo form_error('ga_profile'); ?></span>
+			</div>
+		</div>
+
+
+	<div class="form-actions">
+		<br>
+		<input type="submit" name="submit" class="btn btn-primary" value="Save Settings">
+ </div>
+
+
+		</fieldset>
+
 <?php echo form_close()?>
+
+</div>
