@@ -29,7 +29,7 @@
 			</div>
 		</div>
 
-				<div class="control-group <?php echo form_has_error('ga_code') ? 'error' : ''; ?>">
+		<div class="control-group <?php echo form_has_error('ga_code') ? 'error' : ''; ?>">
 			<label class="control-label" for="ga_code">Analytics code<span class="required">*</span></label>
 			<div class='controls'>
 				<input id="ga_code" type="text" name="ga_code" maxlength="100" value="<?php echo set_value('ga_code', isset($settings['ga_code']) ? $settings['ga_code'] : ''); ?>">
@@ -37,13 +37,14 @@
 			</div>
 		</div>
 
-		<div class="control-group <?php echo form_has_error('ga_enabled') ? 'error' : ''; ?>">
-			<label class="control-label" for="ga_enabled">Enabled<span class="required">*</span></label>
-			<div class='controls'>
-				<?php echo form_dropdown('ga_enabled', array('0'=>'No','1'=>'Yes'), set_value('ga_enabled', ( ( !empty($settings['ga_enabled']) ) ? $settings['ga_enabled'] : 0 ) ), 'id="ga_enabled" class="span2"'); ?>
-				<span class="help-inline"><?php echo form_error('ga_enabled'); ?></span>
-			</div>
-		</div>
+	<?php
+		$ga_enabled_dropdown = array(
+			'name' => 'ga_enabled',
+			'id' => 'ga_enabled',
+			'class' => 'span2',
+		);
+		echo form_dropdown($ga_enabled_dropdown, array('0'=>'No','1'=>'Yes'), set_value('ga_enabled', ( ( !empty($settings['ga_enabled']) ) ? $settings['ga_enabled'] : 0 ) ), 'Enabled' . lang('bf_form_label_required'));
+	?>
 
 		<div class="control-group <?php echo form_has_error('ga_profile') ? 'error' : ''; ?>">
 			<label class="control-label" for="ga_profile">Profile ID<span class="required">*</span></label>
