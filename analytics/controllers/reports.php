@@ -76,9 +76,10 @@ class Reports extends Admin_Controller {
     {
 			Assets::clear_cache();
       Assets::add_module_js('analytics','swfobject.js');
+      Assets::add_module_js('analytics', 'reports.js');
       Assets::add_module_css('analytics','analytics.css');
 
-			Assets::add_js( $this->load->view('reports/reportsjs', null, true ), 'inline' );
+
 			Assets::add_js( $this->load->view('reports/extreport', null, true ), 'inline' );
     } else {
       Template::set_view('reports/not_defined');
