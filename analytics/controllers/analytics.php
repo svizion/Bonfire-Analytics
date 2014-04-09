@@ -1,44 +1,50 @@
-<?php if (!defined('BASEPATH')) exit('No direct script access allowed');
+<?php defined('BASEPATH') || exit('No direct script access allowed');
 
-class Analytics extends Front_Controller {
+/**
+ * Public controller for the Analytics module
+ */
+class Analytics extends Front_Controller
+{
+    private $gDomain = 'auto';
 
-	//--------------------------------------------------------------------
-
+	/**
+	 * Constructor.
+	 *
+	 * @return void
+	 */
 	public function __construct()
 	{
 		parent::__construct();
 	}
 
-	//--------------------------------------------------------------------
-
-	/*
-		Method: index()
-
-		Does nothing.
-	*/
+	/**
+	 * Default method, does nothing.
+	 *
+	 * @return void
+	 */
 	public function index()
 	{
 
 	}
 
-	// ------------------------------------------------------------------------
-
-	/*
-		Method: show_gcode()
-
-		Outputs the google analytics script code for the footer of a website.
-	*/
+	/**
+	 * Outputs the google analytics script code for the site.
+	 *
+	 * @return	View If analytics is enabled, returns the script embedded in a
+	 * view.
+	 */
 	public function show_gcode()
 	{
-		if ( settings_item('ga.enabled') == 1 )
-		{
+		if (settings_item('ga.enabled') == 1) {
 			$data['gcode'] = settings_item('ga.code');
-			return $this->load->view('analytics/index', $data, true);
+            $data['gDomain'] = settings_item('ga.domain') ?: $this->gDomain;
+
+			return $this->load->view(
+                settings_item('ga.universal') ? 'analytics/universal' : 'analytics/index',
+                $data,
+                true
+            );
 		}
-
 	}
-
 }
-
-/* End of file analytics.php */
-/* Location: ./modules/analytics/controllers/analytics.php */
+/* /analytics/controllers/analytics.php */
