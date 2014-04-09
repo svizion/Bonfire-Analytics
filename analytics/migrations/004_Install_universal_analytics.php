@@ -1,16 +1,21 @@
 <?php defined('BASEPATH') || exit('No direct script access allowed');
 
 /**
- * Add/remove the code setting for the Analytics module.
+ * Add/remove the Universal Analytics settings for the Analytics module.
  */
-class Migration_Install_analytics_code extends Migration
+class Migration_Install_universal_analytics extends Migration
 {
     /**
      * @var array The settings for the Analytics module
      */
     private $data = array(
         array(
-            'name'   => 'ga.code',
+            'name'   => 'ga.universal',
+            'module' => 'analytics',
+            'value'  => '',
+        ),
+        array(
+            'name'   => 'ga.domain',
             'module' => 'analytics',
             'value'  => '',
         ),

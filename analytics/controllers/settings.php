@@ -1,153 +1,159 @@
-<?php if (!defined('BASEPATH')) exit('No direct script access allowed');
+<?php defined('BASEPATH') || exit('No direct script access allowed');
 
-class Settings extends Admin_Controller {
+/**
+ * The Settings controller for the Analytics module
+ */
+class Settings extends Admin_Controller
+{
+    protected $permissionView = 'Analytics.Settings.View';
 
-  //--------------------------------------------------------------------
+	/**
+	 * Constructor
+	 *
+	 * @return void
+	 */
+	public function __construct()
+	{
+		parent::__construct();
 
-  public function __construct()
-  {
-    parent::__construct();
+		$this->auth->restrict($this->permissionView);
+		$this->lang->load('analytics');
 
-    $this->auth->restrict('Analytics.Settings.View');
-    $this->lang->load('analytics');
+		Assets::add_js($this->load->view('settings/js', null, true), 'inline');
 
-    Assets::add_js($this->load->view('settings/js', null, true), 'inline');
+		Template::set('settings', array (
+			'ga_username'	=> settings_item('ga.username'),
+			'ga_password'	=> settings_item('ga.password'),
+			'ga_enabled'	=> (int) settings_item('ga.enabled'),
+			'ga_profile'	=> settings_item('ga.profile'),
+			'ga_code'		=> settings_item('ga.code'),
+            'ga_universal'  => settings_item('ga.universal'),
+            'ga_domain'     => settings_item('ga.domain'),
+		));
+	}
 
-    $settings = array (
-      'ga_username' => settings_item('ga.username'),
-      'ga_password' => settings_item('ga.password'),
-      'ga_enabled'  => (int) settings_item('ga.enabled'),
-      'ga_profile'  => settings_item('ga.profile'),
-      'ga_code'     => settings_item('ga.code')
-      );
+	/**
+	 * Display the settings form
+	 *
+	 * @return	void
+	 */
+	public function index()
+	{
+		if ($this->input->post('submit')) {
+			if ($this->save_settings()) {
+				Template::set_message(lang('analytics_settings_edit_success'), 'success');
+				Template::redirect('admin/settings/analytics');
+			} else {
+				Template::set_message(sprintf(lang('analytics_form_error'), $error), 'error');
+			}
+		}
 
-    Template::set('settings',$settings);
-  }
+		Template::set('toolbar_title', lang('analytics_toolbar_title_settings_index'));
 
-  //--------------------------------------------------------------------
+		Template::render();
+	}
 
-  /*
-    Method: index()
+	/**
+	 * Displays form data and writes settings to database
+	 *
+	 * @return	void
+	 */
+	public function edit()
+	{
+		if ($this->input->post('submit')) {
+			if ($this->save_settings()) {
+				Template::set_message(lang('analytics_settings_edit_success'), 'success');
+				Template::redirect('admin/settings/analytics');
+			} else {
+				Template::set_message(sprintf(lang('analytics_form_error'), $error), 'error');
+			}
+		}
 
-    Displays a list of form data.
-  */
-  public function index()
-  {
-    if ($this->input->post('submit'))
-    {
-      if ($this->save_settings())
-      {
-        Template::set_message('<h4 class="alert-heading"><i class="icon-remove"> </i> '.lang('settings_edit_success').'</h4>', 'success');
-        Template::redirect('admin/settings/analytics');
-      } else {
-        Template::set_message('<h4 class="alert-heading"><i class="icon-remove"> </i> Error saving form. <br />'.$error.'</hr>', 'error');
-      }
-    }
+		Template::set_view('settings/index');
+		Template::set('toolbar_title', lang('analytics_toolbar_title_settings_edit'));
 
-    Template::set('toolbar_title','Google Analytics');
-    Template::render();
-  }
+		Template::render();
+	}
 
-  //--------------------------------------------------------------------
+	/*
+	 *********************************************************************
+	 * Private Methods
+	 *********************************************************************
+	 */
 
-  /*
-    Method: edit()
+	/**
+	 * Runs form validation and writes settings to the database
+	 *
+	 * @return	Boolean		false if there was an error, else true
+	 */
+	private function save_settings()
+	{
+		$this->form_validation->set_rules('ga_username', 'lang:analytics_ga_username', 'valid_email|required|trim|xss_clean|max_length[100]');
+		$this->form_validation->set_rules('ga_enabled', 'lang:analytics_ga_enabled', 'required|trim|xss_clean|max_length[1]');
+		$this->form_validation->set_rules('ga_profile', 'lang:analytics_ga_profile', 'trim|xss_clean|max_length[100]');
 
-    Displays form data and writes settings to database.
-  */
-  public function edit()
-  {
-    if ($this->input->post('submit'))
-    {
-      if ($this->save_settings())
-      {
-        Template::set_message(lang('settings_edit_success'), 'success');
-        Template::redirect('admin/settings/analytics');
-      } else {
-        Template::set_message('Error', 'error');
-      }
-    }
+		$rule = 'trim|xss_clean|max_length[100]';
+		if ($this->input->post('ga_new_password')) {
+			$rule = 'required|' . $rule;
+		}
+		$this->form_validation->set_rules('ga_new_password', 'lang:analytics_ga_new_password', $rule);
 
-    Template::set('toolbar_title', "Google Analytics");
-    Template::set_view('settings/index');
-    Template::render();
-  }
+		$rule = 'trim|xss_clean|max_length[15]';
+		if ($this->input->post('ga_enabled') != 0) {
+			$rule = 'required|' . $rule;
+		}
+		$this->form_validation->set_rules('ga_code', 'lang:analytics_ga_code', $rule);
+        $this->form_validation->set_rules('ga_universal', 'lang:analytics_ga_universal', 'trim|xss_clean|max_length[1]');
+        $this->form_validation->set_rules('ga_domain', 'lang:analytics_ga_domain', 'trim|xss_clean|max_length[255]');
 
-  //--------------------------------------------------------------------
+		if ($this->form_validation->run() === false) {
+			return false;
+		}
 
-  //--------------------------------------------------------------------
-  // !PRIVATE METHODS
-  //--------------------------------------------------------------------
+		$data = array(
+			array(
+				'name'	 => 'ga.username',
+				'value'	 => $this->input->post('ga_username'),
+				'module' => 'analytics',
+			),
+			array(
+				'name'	 => 'ga.enabled',
+				'value'	 => $this->input->post('ga_enabled'),
+				'module' => 'analytics',
+			),
+			array(
+				'name'	 => 'ga.profile',
+				'value'	 => $this->input->post('ga_profile'),
+				'module' => 'analytics',
+			),
+			array(
+				'name'	 => 'ga.code',
+				'value'	 => $this->input->post('ga_code'),
+				'module' => 'analytics',
+			),
+            array(
+                'name'   => 'ga.universal',
+                'value'  => $this->input->post('ga_universal'),
+                'module' => 'analytics',
+            ),
+            array(
+                'name'   => 'ga.domain',
+                'value'  => $this->input->post('ga_domain'),
+                'module' => 'analytics',
+            ),
+		);
 
-  /*
-    Method: save_settings()
+		if ($this->input->post('ga_new_password')) {
+			$data[] = array(
+				'name'	 => 'ga.password',
+				'value'	 => $this->input->post('ga_new_password'),
+				'module' => 'analytics',
+			);
+		}
 
-    Runs form validation on data and writes settings to database.
-  */
-  private function save_settings()
-  {
+		log_activity($this->current_user->id, lang('bf_act_settings_saved') . $this->input->ip_address(), 'analytics');
 
-    $this->form_validation->set_rules('ga_username','Username','valid_email|required|trim|xss_clean|max_length[100]');
-
-    $rule = '';
-    if ($this->input->post('ga_new_password'))
-    {
-      $rule = 'required|';
-    }
-
-    $this->form_validation->set_rules('ga_new_password','Password',$rule.'trim|xss_clean|max_length[100]');
-
-    $this->form_validation->set_rules('ga_enabled','Enabled','required|trim|xss_clean|max_length[1]');
-
-    $rule = '';
-    if ($this->input->post('ga_enabled') != 0)
-    {
-      $rule = 'required|';
-    }
-
-
-    $this->form_validation->set_rules('ga_profile','Profile id','trim|xss_clean|max_length[100]');
-    $this->form_validation->set_rules('ga_code','Code',$rule.'trim|xss_clean|max_length[15]');
-
-    if ($this->form_validation->run() === FALSE)
-    {
-      return FALSE;
-    }
-
-
-
-    if ($this->input->post('ga_new_password'))
-    {
-      $password = $this->input->post('ga_new_password');
-      $q = $this->settings_lib->set('ga.password', $password, 'analytics');
-
-      if ($q === false) return false;
-    }
-
-    $q = $this->settings_lib->set('ga.username', $this->input->post('ga_username'), 'analytics');
-    if ($q === false) return false;
-
-    $q = $this->settings_lib->set('ga.enabled', $this->input->post('ga_enabled'), 'analytics');
-    if ($q === false) return false;
-
-    $q = $this->settings_lib->set('ga.profile', $this->input->post('ga_profile'), 'analytics');
-    if ($q === false) return false;
-
-    $q = $this->settings_lib->set('ga.code', $this->input->post('ga_code'), 'analytics');
-    if ($q === false) return false;
-
-    //destroy the saved update message in case they changed update preferences.
-    if ($this->cache->get('update_message'))
-    {
-      $this->cache->delete('update_message');
-    }
-
-    // Log the activity
-    $this->activity_model->log_activity($this->current_user->id, lang('bf_act_settings_saved'). $this->input->ip_address(), 'analytics');
-
-    return true;
-  }
-
-  //--------------------------------------------------------------------
-
+		return $this->settings_model->update_batch($data, 'name');
+	}
 }
+/* /analytics/controllers/settings.php */
